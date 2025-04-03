@@ -30,7 +30,6 @@ Built with:
 
 1. Clone the repo:
 
-```bash
 git clone https://github.com/YOUR_USERNAME/triggr.git
 
 2. Use Codespaces OR run manually:
@@ -67,3 +66,13 @@ Codespaces will auto:
 
 To rebuild:
 git clone ... && open in Codespaces
+
+
+Quick Git Commands
+
+Check what's changed
+git status
+
+git add .
+git commit -m "COMMENT HERE"
+git push
