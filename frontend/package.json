@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "tsc -b && vite build",
+    "clean": "rm -rf dist",
     "lint": "eslint .",
     "preview": "vite preview",
     "tailwind:init": "tailwindcss init -p"
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@tailwindcss/postcss": "^4.1.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

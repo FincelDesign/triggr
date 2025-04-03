@@ -15,7 +15,7 @@
       ]
     }
   },
-  "postCreateCommand": "cd frontend && npm install && npm run tailwind:init && cd ../backend && npm install",
-  "forwardPorts": [3000],
+  "postCreateCommand": "cd frontend && npm install && npm install -D @tailwindcss/postcss && npm run tailwind:init && cd ../backend && npm install",
+  "forwardPorts": [3000, 5000],
   "remoteUser": "node"
 }

@@ -9,27 +9,28 @@ interface Tier {
 export default function TierBuilder() {
   const { publicKey } = useWallet();
   const [tiers, setTiers] = useState<Tier[]>([]);
-
   const walletKey = publicKey?.toBase58();
-  const localKey = walletKey ? `tiers-${walletKey}` : "";
-  console.log("📡 walletKey:", walletKey);
-  console.log("💾 localKey:", localKey);
+  const apiBase = "https://ideal-system-7rpg6764rrhpx5j-5000.app.github.dev"; // Replace with your Codespace backend URL
 
-  // Load saved tiers when wallet connects
+  // 🔁 Load tiers on wallet connect
   useEffect(() => {
-    if (walletKey) {
-      const saved = localStorage.getItem(localKey);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          setTiers(parsed);
-        } catch {
-          console.warn("⚠️ Failed to parse saved tiers");
+    if (!walletKey) return;
+
+    const fetchTiers = async () => {
+      try {
+        const res = await fetch(`${apiBase}/api/tiers/${walletKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.data) {
+            setTiers(data.data);
+          }
         }
-      } else {
-        setTiers([{ price: 0.01, amount: 10000 }]); // default tier
+      } catch (err) {
+        console.error("❌ Failed to load tiers:", err);
       }
-    }
+    };
+
+    fetchTiers();
   }, [walletKey]);
 
   const handleChange = (index: number, field: keyof Tier, value: string) => {
@@ -47,18 +48,51 @@ export default function TierBuilder() {
     setTiers(filtered);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!walletKey) {
-      alert("⚠️ Connect your wallet to save tiers.");
+      alert("⚠️ Connect your wallet first.");
       return;
     }
-  
+
     try {
-      localStorage.setItem(localKey, JSON.stringify(tiers));
-      alert("✅ Tiers saved!");
+      const res = await fetch(`${apiBase}/api/tiers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: walletKey, tiers }),
+      });
+
+      if (res.ok) {
+        alert("✅ Tiers saved to cloud!");
+      } else {
+        alert("❌ Failed to save tiers.");
+      }
     } catch (err) {
-      console.error("Failed to save tiers:", err);
-      alert("❌ Failed to save tiers.");
+      console.error("❌ Save error:", err);
+      alert("❌ Network error while saving.");
+    }
+  };
+
+  const handleStartBot = async () => {
+    if (!walletKey) {
+      alert("⚠️ Connect your wallet first.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/api/start-bot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: walletKey, tiers }),
+      });
+
+      if (res.ok) {
+        alert("✅ Bot started successfully!");
+      } else {
+        alert("❌ Failed to start bot.");
+      }
+    } catch (err) {
+      console.error("🔥 Bot start error:", err);
+      alert("❌ Network error while starting bot.");
     }
   };
 
@@ -119,51 +153,25 @@ export default function TierBuilder() {
           onClick={handleSave}
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
         >
-          Save Tiers
+          💾 Save Tiers
         </button>
       </div>
-      {tiers.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-md font-semibold mb-2 text-gray-200">📊 Tier Summary</h3>
-          <ul className="text-sm text-gray-400 space-y-1">
-            {tiers.map((tier, i) => (
-              <li key={i}>
-                Price: ${tier.price.toFixed(5)}, Amount: {tier.amount}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+
+      <div className="mt-8">
+        <h3 className="text-md font-semibold mb-2 text-gray-200">📊 Tier Summary</h3>
+        <ul className="text-sm text-gray-400 space-y-1">
+          {tiers.map((tier, i) => (
+            <li key={i}>• Price: ${tier.price.toFixed(5)}, Amount: {tier.amount}</li>
+          ))}
+        </ul>
+      </div>
+
       <button
-        onClick={async () => {
-          if (!walletKey) {
-            alert("⚠️ Connect your wallet first.");
-            return;
-          }
-
-          try {
-            const res = await fetch("http://localhost:5000/api/start-bot", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ wallet: walletKey, tiers }),
-            });
-
-            if (res.ok) {
-              alert("✅ Bot started successfully!");
-            } else {
-              alert("❌ Failed to start bot.");
-            }
-          } catch (err) {
-            console.error("🔥 Bot start error:", err);
-            alert("❌ Network error while starting bot.");
-          }
-        }}
+        onClick={handleStartBot}
         className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition mt-6"
       >
         ▶️ Start Bot
       </button>
-
     </div>
-    
   );
 }
