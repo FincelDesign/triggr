@@ -15,7 +15,7 @@
       ]
     }
   },
-  "postCreateCommand": "npm install && npm install -D tailwindcss postcss autoprefixer && node_modules/.bin/tailwindcss init -p",
+  "postCreateCommand": "cd frontend && npm install && npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p",
   "forwardPorts": [3000],
   "remoteUser": "node"
 }
