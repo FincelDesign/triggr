@@ -7,6 +7,6 @@
       "strict": true,
       "esModuleInterop": true
     },
-    "include": ["./**/*.ts"]
+    "include": ["src", "routes", "supabaseClient.ts", "**/*.ts"]
   }
   
