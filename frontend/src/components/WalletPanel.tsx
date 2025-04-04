@@ -10,7 +10,7 @@ interface WalletPanelProps {
 export default function WalletPanel({ visible, onClose, walletAddress }: WalletPanelProps) {
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-[360px] bg-[#1a1d23] z-[999] shadow-xl border-l border-gray-700 p-6 flex flex-col transition-transform duration-300 transform-gpu ${
+      className={`fixed top-0 right-0 h-full w-[360px] bg-[#1a1d23] z-[999] border-l border-gray-700 p-6 flex flex-col transition-transform duration-300 transform-gpu ${
         visible ? "translate-x-0" : "translate-x-full"
       }`}
     >
