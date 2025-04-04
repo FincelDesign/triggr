@@ -1,6 +1,5 @@
 import Header from "./components/Header";
 import SwapPanel from "./components/SwapPanel";
-import DebugPanel from "./components/DebugPanel";
 
 export default function App() {
   return (
@@ -8,7 +7,6 @@ export default function App() {
       <Header />
       <main className="flex-1 flex justify-center items-center relative">
         <SwapPanel />
-        <DebugPanel /> {/* ⬅️ This renders above all */}
       </main>
     </div>
   );
