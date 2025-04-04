@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Buffer } from "buffer";
 
 interface Tier {
   price: number;
@@ -7,12 +8,11 @@ interface Tier {
 }
 
 export default function TierBuilder() {
-  const { publicKey } = useWallet();
+  const { publicKey, signMessage } = useWallet();
   const [tiers, setTiers] = useState<Tier[]>([]);
   const walletKey = publicKey?.toBase58();
-  const apiBase = "https://ideal-system-7rpg6764rrhpx5j-5000.app.github.dev"; // Replace with your Codespace backend URL
+  const apiBase = import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
 
-  // 🔁 Load tiers on wallet connect
   useEffect(() => {
     if (!walletKey) return;
 
@@ -31,7 +31,7 @@ export default function TierBuilder() {
     };
 
     fetchTiers();
-  }, [walletKey]);
+  }, [walletKey, apiBase]);
 
   const handleChange = (index: number, field: keyof Tier, value: string) => {
     const updated = [...tiers];
@@ -48,26 +48,59 @@ export default function TierBuilder() {
     setTiers(filtered);
   };
 
+  const signTierSaveMessage = async () => {
+    if (!walletKey || !publicKey || !signMessage) return null;
+
+    const encoder = new TextEncoder();
+    const message = `Triggr auth - sign to save tiers (${Date.now()})`;
+    const encoded = encoder.encode(message);
+
+    try {
+      const signed = await signMessage(encoded);
+      return {
+        message,
+        signature: Buffer.from(signed).toString("base64"),
+      };
+    } catch (err) {
+      console.error("❌ Signature error:", err);
+      return null;
+    }
+  };
+
   const handleSave = async () => {
     if (!walletKey) {
       alert("⚠️ Connect your wallet first.");
       return;
     }
 
+    const signed = await signTierSaveMessage();
+    if (!signed) return;
+
+    const payload = {
+      wallet: walletKey,
+      tiers,
+      message: signed.message,
+      signature: signed.signature,
+    };
+
+    console.log("📤 Sending tier save request:", payload);
+
     try {
       const res = await fetch(`${apiBase}/api/tiers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet: walletKey, tiers }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         alert("✅ Tiers saved to cloud!");
       } else {
+        const errorData = await res.json();
+        console.error("❌ Backend responded with error:", errorData);
         alert("❌ Failed to save tiers.");
       }
     } catch (err) {
-      console.error("❌ Save error:", err);
+      console.error("❌ Network error during tier save:", err);
       alert("❌ Network error while saving.");
     }
   };
@@ -77,14 +110,22 @@ export default function TierBuilder() {
       alert("⚠️ Connect your wallet first.");
       return;
     }
-
+  
+    const signed = await signTierSaveMessage();
+    if (!signed) return;
+  
     try {
       const res = await fetch(`${apiBase}/api/start-bot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet: walletKey, tiers }),
+        body: JSON.stringify({
+          wallet: walletKey,
+          tiers,
+          message: signed.message,
+          signature: signed.signature,
+        }),
       });
-
+  
       if (res.ok) {
         alert("✅ Bot started successfully!");
       } else {
@@ -95,6 +136,10 @@ export default function TierBuilder() {
       alert("❌ Network error while starting bot.");
     }
   };
+
+  if (typeof window !== "undefined") {
+    window.Buffer = window.Buffer || Buffer;
+  }
 
   return (
     <div className="mt-10 bg-gray-900 rounded-lg p-6 border border-gray-700">

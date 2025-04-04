@@ -5,15 +5,19 @@ const router = express.Router();
 
 router.get("/:wallet", async (req, res) => {
   const { wallet } = req.params;
+  console.log("📥 GET request for wallet:", wallet);
 
   const { data, error } = await supabase
     .from("tiers")
     .select("data")
     .eq("wallet", wallet)
-    .single();
+    .order("created_at", { ascending: false }) // newest first
+    .limit(1)
+    .maybeSingle(); // ✅ doesn't fail if more than one row
 
-  if (error) {
-    return res.status(404).json({ error: "No tiers found for wallet" });
+  if (error || !data) {
+    console.warn("⚠️ No recent tier data found for:", wallet);
+    return res.status(404).json({ error: "No tiers found" });
   }
 
   return res.status(200).json(data);
