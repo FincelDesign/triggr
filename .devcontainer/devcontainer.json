@@ -1,6 +1,6 @@
 {
   "name": "Triggr Dev",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20.18.0"
