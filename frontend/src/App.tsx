@@ -1,19 +1,14 @@
-import ConnectWallet from "./components/ConnectWallet";
-import TierBuilder from "./components/TierBuilder";
+import Header from "./components/Header";
+import SwapPanel from "./components/SwapPanel";
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <h1 className="text-4xl font-bold mb-4">🚀 Triggr</h1>
-      <p className="text-sm text-gray-400 mb-10">
-        Solana limit order automation for SPL & tax tokens
-      </p>
+    <div className="min-h-screen bg-[#12141a] text-white flex flex-col items-center justify-start">
+      <Header />
 
-      <ConnectWallet />
-      <TierBuilder />
-
-      <div className="border border-gray-700 rounded-lg p-4">
-        <p className="text-gray-300">🚧 Tier Builder UI coming soon...</p>
-      </div>
+      <main className="flex flex-1 w-full justify-center items-center px-4">
+        <SwapPanel />
+      </main>
     </div>
   );
 }

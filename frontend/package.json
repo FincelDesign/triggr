@@ -2,6 +2,9 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": ">=20.18.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +16,7 @@
     "tailwind:init": "tailwindcss init -p"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-phantom": "^0.9.24",
     "@solana/wallet-adapter-react": "^0.15.35",
